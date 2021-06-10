@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.Chronometer;
+import android.widget.DatePicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -18,7 +19,7 @@ import android.widget.TimePicker;
 public class MainActivity extends AppCompatActivity {
     Chronometer chrono1;
     RadioGroup rg;
-    CalendarView calendar;
+    DatePicker datepick;
     TimePicker time;
     TextView textResult;
     RadioButton radioCal, radioTime;
@@ -30,60 +31,54 @@ public class MainActivity extends AppCompatActivity {
 
         chrono1 = findViewById(R.id.chrono1);
         rg = findViewById(R.id.rg);
-        calendar =findViewById(R.id.calender);
+        datepick = findViewById(R.id.date_pick);
         time = findViewById(R.id.time_pick);
         textResult = findViewById(R.id.text_result);
-        Button btnStart = findViewById(R.id.btn_start);
-        Button btnDone = findViewById(R.id.btn_done);
-        radioCal = findViewById(R.id.radio_date);
-        radioTime = findViewById(R.id.radio_time);
+        chrono1.setOnClickListener(chronoListener);
+        textResult.setOnLongClickListener(textListener);
 
         rg.setOnCheckedChangeListener(radioListener);
 
-        btnStart.setOnClickListener(btnListener);
-        btnDone.setOnClickListener(btnListener);
-
-        calendar.setOnDateChangeListener(calendarListener);
+        //calendar.setOnDateChangeListener(calendarListener);
     }
     RadioGroup.OnCheckedChangeListener radioListener = new RadioGroup.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-            calendar.setVisibility(View.INVISIBLE);
+            datepick.setVisibility(View.INVISIBLE);
             time.setVisibility(View.INVISIBLE);
             switch (checkedId){
                 case R.id.radio_date:
-                    calendar.setVisibility(View.VISIBLE);
-                case R.id.radio_time:
-                    calendar.setVisibility(View.VISIBLE);
-            }
-        }
-    };
-    View.OnClickListener btnListener = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()){
-                case R.id.btn_start:
-                    chrono1.setBase(SystemClock.elapsedRealtime());
-                    chrono1.start();
-                    chrono1.setTextColor(Color.RED);
+                    datepick.setVisibility(View.VISIBLE);
                     break;
-                case R.id.btn_done:
-                    chrono1.stop();
-                    chrono1.setTextColor(Color.BLUE);
-                    textResult.setText(y +"년 " + m + "월 " + d + "일 " );
-                    textResult.append(time.getCurrentHour() + "시 " + time.getCurrentMinute() + "분 예약완료됨");
+                case R.id.radio_time:
+                    time.setVisibility(View.VISIBLE);
                     break;
             }
         }
     };
 
-    int y, m, d;
-    CalendarView.OnDateChangeListener calendarListener = new CalendarView.OnDateChangeListener() {
+    View.OnClickListener chronoListener = new View.OnClickListener() {
         @Override
-        public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-            y = year;
-            m = month +1;
-            d = dayOfMonth;
+        public void onClick(View v) {
+            chrono1.setBase(SystemClock.elapsedRealtime());
+            chrono1.start();
+            chrono1.setTextColor(Color.RED);
+            rg.setVisibility(View.VISIBLE);
+            datepick.setVisibility(View.VISIBLE);
+        }
+    };
+
+    View.OnLongClickListener textListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            chrono1.stop();
+            chrono1.setTextColor(Color.BLUE);
+            textResult.setText(datepick.getYear() +"년 " + (datepick.getMonth()+1) + "월 " + datepick.getDayOfMonth() + "일 " );
+            textResult.append(time.getCurrentHour() + "시 " + time.getCurrentMinute() + "분 예약완료됨");
+            rg.setVisibility(View.INVISIBLE);
+            datepick.setVisibility(View.INVISIBLE);
+            time.setVisibility(View.INVISIBLE);
+            return false;
         }
     };
 }
